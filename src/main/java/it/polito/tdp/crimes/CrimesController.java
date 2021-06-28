@@ -5,8 +5,10 @@
 package it.polito.tdp.crimes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.Adiacenza;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,16 +27,16 @@ public class CrimesController {
     private URL location;
 
     @FXML // fx:id="boxCategoria"
-    private ComboBox<?> boxCategoria; // Value injected by FXMLLoader
+    private ComboBox<String> boxCategoria; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAnno"
-    private ComboBox<?> boxAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAnalisi"
     private Button btnAnalisi; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxArco"
-    private ComboBox<?> boxArco; // Value injected by FXMLLoader
+    private ComboBox<Adiacenza> boxArco; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnPercorso"
     private Button btnPercorso; // Value injected by FXMLLoader
@@ -46,12 +48,57 @@ public class CrimesController {
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Crea grafo...\n");
+    	boxArco.getItems().clear();
+    	
+    	Integer anno = boxAnno.getValue();
+    	String categoria = boxCategoria.getValue();
+    	
+    	if(anno == null || categoria == null) {
+    		txtResult.appendText("Devi inserire anno e categoria");
+    		return;
+    	}
+    	
+    	model.creaGrafo(anno, categoria);
+    	
+    	txtResult.appendText("Grafo creato!\n");
+    	txtResult.appendText("Numero vertici: "+model.getNVertici()+"\n");
+    	txtResult.appendText("Numero archi: "+model.getNArchi()+"\n");
+    	
+    	
+    	txtResult.appendText("Archi di peso massimo: \n");
+    	for(Adiacenza a: model.getArchiPesoMax(anno, categoria)) {
+    		
+    		txtResult.appendText("Vertice v1: "+a.getV1()+" VS Vertice v2: "+a.getV2()+", peso: "+a.getPeso()+"\n");
+    		
+    		
+    	}
+    	
+    	boxArco.getItems().addAll(model.getArchiPesoMax(anno, categoria));
+    	
     }
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Calcola percorso...\n");
+    	
+    	String s1 = boxArco.getValue().getV1();
+    	String s2 = boxArco.getValue().getV2();
+    	
+    	List<String> percorso =model.calcoloPercorso(s1, s2);
+    	
+    	if(percorso== null) {
+    		txtResult.appendText("Nessun percorso disponibile");
+    		return;
+    	}
+    	
+    	for(String s: percorso) {
+    		
+    		txtResult.appendText(s+"\n");
+    	}
+    	
+    	
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -67,5 +114,9 @@ public class CrimesController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	
+    	boxAnno.getItems().addAll(model.getAllAnni());
+    	boxCategoria.getItems().addAll(model.getAllCategorie());
+    	
     }
 }
