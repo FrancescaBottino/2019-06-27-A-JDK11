@@ -141,7 +141,7 @@ public class Model {
 		int sommaPesi = calcolaPesoTot(parziale);
 		
 		
-		if(parziale.size() == dimensioneRaggiungibili) {
+		if(parziale.size() == grafo.vertexSet().size()) { //tocchi tutti i vertici
 			
 			//cerca se l'ultimo è giusto
 			
